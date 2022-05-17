@@ -176,7 +176,7 @@ def create_diagram_us(diagram_id: int):
     # files = []
     for us in data:
         diagram.user_stories.add(UserStory.objects.create(diagram=diagram, data=us))
-        # error, file_name = generate_us(us)
+        error, file_name = generate_us(us)
         # print(file_name)
         # if not error:
         #     files.append(file_name)
