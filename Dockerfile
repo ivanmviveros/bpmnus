@@ -14,6 +14,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt --cache-dir /opt/app/pip_cache
 COPY . .
 COPY buildfiles/nginx.default /etc/nginx/sites-available/default
+RUN python manage.py collectstatic
 RUN chown -R www-data:www-data /opt/app
 
 EXPOSE 8020

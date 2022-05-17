@@ -16,7 +16,7 @@ services:
       interval: 5s
 
   migration:
-    image: edgarceron1993/bpmnus
+    image: bpmnus
     command: python manage.py migrate --noinput
     volumes:
       - /var/www/static/
@@ -25,15 +25,16 @@ services:
         condition: service_healthy
 
   bpmnus:
-    image: edgarceron1993/bpmnus
+    image: bpmnus
     restart: always
     volumes:
       - /var/www/static/
+      - /opt/app/bpmnus/static
     depends_on:
       - migration
 
   bpmnusfront:
-    image: edgarceron1993/bpmnusfront
+    image: bpmnusfront
 
   nginx:
     image: edgarceron1993/nginxbpmnus

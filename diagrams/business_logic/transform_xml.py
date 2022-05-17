@@ -1,9 +1,11 @@
 import os, xmltodict, json, platform
 from typing import OrderedDict, Tuple
+
+from django.shortcuts import get_object_or_404
 from xhtml2pdf import pisa
 from django.template import loader
 from django.conf import settings
-from diagrams.models import Diagrams
+from diagrams.models import Diagrams, UserStory
 from rest_framework import status
 from rest_framework.response import Response
 from zipfile import ZipFile
@@ -86,7 +88,7 @@ def get_last_activities(id: str, dependencies: dict):
         relations = relations + get_last_activities(i, dependencies)
     return relations
 
-def get_processes(diagram: dict) -> list[dict]:
+def get_processes(diagram: dict):
     processes = diagram['bpmn:definitions']['bpmn:process']
     processes = processes if isinstance(processes, list) else [processes] 
     return processes
@@ -144,8 +146,12 @@ def has_participants(diagram_id: int):
         content_type='application/json'
     ))
 
-def generate_us(data: dict) -> Tuple[bool, str]:
+def generate_us_html(data: dict):
     source_html = loader.render_to_string('diagrams/ustemplate.html', data)
+    return source_html
+
+def generate_us(data: dict) -> Tuple[bool, str]:
+    source_html = generate_us_html(data)
     path = settings.STATIC_ROOT
     file_name = os.path.join(path, data['project'] , data['id'] + '.pdf')
     if not os.path.exists(os.path.dirname(file_name)):
@@ -164,15 +170,18 @@ def add_files_to_zip(files: list, diagram_id: str):
     zip_obj.close()
 
 def create_diagram_us(diagram_id: int):
+    diagram = get_object_or_404(Diagrams)
+    diagram.user_stories.all().delete()
     data = get_data_for_us(diagram_id)
-    files = []
+    # files = []
     for us in data:
-        error, file_name = generate_us(us)
-        print(file_name)
-        if not error:
-            files.append(file_name)
-        else: 
-            print(error)
+        diagram.user_stories.add(UserStory.objects.create(diagram=diagram, data=us))
+        # error, file_name = generate_us(us)
+        # print(file_name)
+        # if not error:
+        #     files.append(file_name)
+        # else:
+        #     print(error)
 
     if data == []:
         message = "No se encontraron procesos para el diagrama escogido"

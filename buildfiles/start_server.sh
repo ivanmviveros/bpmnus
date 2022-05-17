@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # start-server.sh
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ] ; then
     (cd bpmnus; python manage.py createsuperuser --no-input)

@@ -7,3 +7,4 @@ class Projects(models.Model):
     name = models.TextField()
     desc = models.TextField()
     creation_date = models.DateTimeField()
+
