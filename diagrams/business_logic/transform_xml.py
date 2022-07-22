@@ -77,7 +77,7 @@ def get_activity_relations(activity: dict, dependencies: dict):
     return relations
 
 def get_relations_with_names(relations: list, names: dict):
-    relations = [i + ' ' + names[i] for i in relations]
+    relations = [names[i]["id"] + ' ' + names[i]["name"] for i in relations]
     return relations
 
 def get_last_activities(id: str, dependencies: dict):
@@ -96,11 +96,13 @@ def get_processes(diagram: dict):
 def get_activity_names(diagram: dict) -> dict:
     names = {}
     processes = get_processes(diagram)
+    hu_id = 0
     for i in processes:
         tasks = i.get('bpmn:task', [])
         tasks = tasks if isinstance(tasks, list) else [tasks]
         for j in tasks:
-            names[j['@id']] = j['@name']
+            hu_id += 1
+            names[j['@id']] = {"id":f"HU {hu_id}", "name":j['@name']}
     return names
 
 def get_data_for_us(diagram_id):
@@ -117,22 +119,27 @@ def get_data_for_us(diagram_id):
     for role in participants:
         name = role.get('@name', '')
         tasks = get_participant_activities(diagram, role['@processRef'])
+        hu_id = 0
         for i in tasks:
+            hu_id+=1
             task_id = i['@id']
             relations =  get_activity_relations(i, dependencies)
             relations = get_relations_with_names(relations, names)
+            print(relations)
             data.append({
-                'id': task_id,
+                'id': names[task_id]["id"],
                 'project': diagram_data.project.name,
                 'actor': name,
                 'title': props[task_id].get('name', ''),
                 'desc':  props[task_id].get('desc', ''),
+                'full_desc': f"Como {name} quiero {props[task_id].get('name', '')} de tal forma que {props[task_id].get('desc', '')}",
                 'priority':  props[task_id].get('priority', ''),
                 'criteria':  props[task_id].get('criteria', ''),
                 'points':  props[task_id].get('points', ''),
                 'restrictionsw':  props[task_id].get('restrictions', ''),
                 'relations': relations
             })
+    data = sorted(data, key=lambda d: d['id'])
     return data
 
 def has_participants(diagram_id: int):

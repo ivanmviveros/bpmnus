@@ -1,6 +1,7 @@
 """Serializer for diagrams module"""
 from rest_framework import serializers
-from .models import Diagrams
+from .models import Diagrams, UserStory
+
 
 class DiagramsSerializer(serializers.ModelSerializer):
     """Serializer for Diagrams model"""
@@ -23,3 +24,9 @@ class DiagramsSerializer(serializers.ModelSerializer):
         instance.creation_date = validated_data['creation_date']
         instance.save()
         return instance
+
+class UserStorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserStory
+        fields = ("id", "data",)
