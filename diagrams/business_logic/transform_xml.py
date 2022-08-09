@@ -177,7 +177,7 @@ def add_files_to_zip(files: list, diagram_id: str):
     zip_obj.close()
 
 def create_diagram_us(diagram_id: int):
-    diagram = get_object_or_404(Diagrams)
+    diagram = get_object_or_404(Diagrams, pk=diagram_id)
     diagram.user_stories.all().delete()
     data = get_data_for_us(diagram_id)
     # files = []
